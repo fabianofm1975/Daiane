@@ -1,0 +1,41 @@
+trigger: none
+
+pool:
+  vmImage: ubuntu-latest
+
+variables:
+  resourcegroup: 'Automacao'
+  storageaccount: 'automacaoterraform'
+  blobcontainer: 'terraform'
+  terraformstatekey: 'terraform.tfstate'
+  terraformdirectory: '$(System.DefaultWorkingDirectory)/Infra/'
+
+stages:
+  - stage: tfdestroy
+    jobs:
+      - job: destroy
+        steps: 
+          - task: TerraformInstaller@1
+            displayName: Installer
+            inputs:
+              terraformVersion: 'latest'
+          - task: TerraformTaskV4@4
+            displayName: Init
+            inputs:
+              provider: 'azurerm'
+              command: 'init'
+              backendServiceArm: 'Azure'
+              backendAzureRmResourceGroupName: '$(resourcegroup)'
+              backendAzureRmStorageAccountName: '$(storageaccount)'
+              backendAzureRmContainerName: '$(blobcontainer)'
+              backendAzureRmKey: '$(terraformstatekey)'
+              workingDirectory: '$(terraformdirectory)'
+          - task: TerraformTaskV4@4
+            displayName: Destroy
+            inputs:
+              provider: 'azurerm'
+              command: 'destroy'
+              workingDirectory: '$(terraformdirectory)'
+              environmentServiceNameAzureRM: 'Azure'
+
+
