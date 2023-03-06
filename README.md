@@ -1,2 +1,2 @@
 Devops Project
-CI/CD
+treinamento CI/CD
